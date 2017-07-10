@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  exit 84
+else
+user=`env | grep "USER"`
+day_letter=`date +%a`
+month=`date +%b`
+day=`date +%d`
+time=`date +%H:%M:%S`
+year=`date +%Y`
+printf "##\n" > Makefile
+printf "## Made by " >> Makefile
+printf "%s\n" ${user:5} >> Makefile
+printf "## Login <%s@epitech.eu>\n" ${user:5} >> Makefile
+printf "##\n" >> Makefile
+printf "## Started on  %s %s %s %s %s %s\n" ${day_letter} ${month} ${day} ${time} ${year} ${user:5}  >> Makefile
+printf "## Last update %s %s %s %s %s %s\n" ${day_letter} ${month} ${day} ${time} ${year} ${user:5}  >> Makefile
+printf "##\n" >> Makefile

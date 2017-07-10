@@ -1,0 +1,115 @@
+#!/bin/bash
+
+projdir=`grep -R "PROJECT_DIR" $1`
+directory=${projdir:12}/Makefile
+
+if [ $# -ne 1 ]; then
+  echo "Invalid argument"
+  exit 84
+fi
+
+rm -f ${directory}
+
+if [ ! -e ${directory} ];then
+
+   printf "PROJECT_DIR\t=" >> ${directory}
+   printf "\t%s" ${projdir:12} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   source=`grep -R "SOURCES_DIR" $1`
+   printf "SOURCES_DIR\t=" >> ${directory}
+   printf "\t%s" ${source:12} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   srcs=`grep ".c;" $1 | cut -d ";" -f 1`
+   printf "SRCS\t\t=" >> ${directory}
+   printf "\t\t\$(SOURCES_DIR)/%s \\\\\n" ${srcs} >> ${directory}
+
+   printf "\n" >> ${directory}
+
+   exec=`grep -R "EXEC" $1`
+   printf "EXEC\t\t=" >> ${directory}
+   printf "\t%s" ${exec:5} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   cc=`grep -R "CC" $1`
+   printf "CC\t\t=" >> ${directory}
+   printf "\t%s" ${cc:3} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   cflags=`grep -R "CFLAGS" $1`
+   printf "CFLAGS\t\t=" >> ${directory}
+   printf "\t-I. %s" ${cflags:7} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   ldflags=`grep -R "LDFLAGS" $1`
+   printf "LDFLAGS\t\t=" >> ${directory}
+   printf "\t%s" ${ldflags:9} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   headers=`grep -R "HEADERS_DIR" $1`
+   printf "HEADERS_DIR\t=" >> ${directory}
+   printf "\t%s" ${headers:12} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   libs=`grep -R "LIBS_DIR" $1`
+   printf "LIBS_DIR\t=" >> ${directory}
+   printf "\t%s" ${libs:9} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   bck=`grep -R "BCK_DIR" $1`
+   printf "BCK_DIR\t\t=" >> ${directory}
+   printf "\t%s" ${bck:8} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   zip=`grep -R "^ZIP;" $1`
+   printf "ZIP\t\t=" >> ${directory}
+   printf "\t%s" ${zip:4} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   zip_flags=`grep -R "^ZIPFLAG" $1`
+   printf "ZIPFLAGS\t=" >> ${directory}
+   printf "\t%s" ${zip_flags:9} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   unzip=`grep -R "^UNZIP;" $1`
+   printf "UNZIP\t\t=" >> ${directory}
+   printf "\t%s" ${unzip:6} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   unzip_flags=`grep -R "^UNZIPFLAGS" $1`
+   printf "UNZIPFLAGS\t=" >> ${directory}
+   printf "\t%s" ${unzip_flags:11} >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   printf "TAR_NAME\t=\tarchive.tar" >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   printf "NUM_FLAGS\t=\t@echo V2.1.1" >> ${directory}
+   printf " %c\n\n" '\\' >> ${directory}
+
+   printf "RM\t\t=\trm -f %c\n\n" '\\' >> ${directory}
+
+   printf "OBJS\t\t=\t\$(SRCS:.c=.o) %c\n\n" '\\' >> ${directory}
+
+   printf "all :\t\t\$(EXEC)\n\n" >> ${directory}
+
+   printf "archive:\n\t\t\$(ZIP) \$(ZIPFLAGS) \$(TAR_NAME) \$(SOURCES_DIR)\$(SRCS)\n\t\t@echo \$(TAR_NAME) file generated\n\n" >> ${directory}
+
+   printf "revert:\n\t\t\$(UNZIP) \$(UNZIPFLAGS) \$(TAR_NAME) \$(SOURCES_DIR)\$(SRCS)\n\n" >> ${directory}
+
+   printf "delete:\n\t\trm -f \$(TAR_NAME)\n\n" >> ${directory}
+
+   printf "num:\n\t\t\$(NUM_FLAGS)\n\n" >> ${directory}
+
+   printf "\$(EXEC):\t\$(OBJS)\n\t\tcc \$(OBJS) -o \$(EXEC) \$(CFLAGS)\n\n" >> ${directory}
+
+   printf "clean:\n\t\$(RM) \$(OBJS) *.gcno\n\n" >> ${directory}
+
+   printf "fclean:\tclean\n\t\$(RM) \$(EXEC)\n\n" >> ${directory}
+
+   printf "re:\tfclean all\n\n" >> ${directory}
+
+   printf ".PHONY:\tclean fclean all re\n" >> ${directory}
+
+fi
